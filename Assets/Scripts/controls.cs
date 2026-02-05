@@ -1,21 +1,28 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Valve.VR;
+using UnityEngine.InputSystem;
 using UnityEngine.XR;
 
 public class controls : MonoBehaviour
 {
-    public NauseaScore score;
+
     public GameObject PosGuides;
-    public static bool gameStarted =false;
-    public bool manualStart = false;
+    public static bool gameStarted = false;
+    public bool manualStart = true;
     public GameObject visualFlowObjects;
     public GameObject snow;
     public bool setResolutionFullHD;
     public bool wireFrameModeActive;
 
     public float triggerAxis;
+
+    [Header("Input Actions")]
+    public InputActionProperty upperButtonAction;
+    public InputActionProperty lowerButtonAction;
+    public InputActionProperty grabGripAction;
+    public InputActionProperty grabPinchAction;
+    public InputActionProperty squeezeAction;
 
     // Update is called once per frame
     private void Start()
@@ -34,44 +41,46 @@ public class controls : MonoBehaviour
             XRSettings.eyeTextureResolutionScale = setResolutionFullHD ? 0.655f : 1;
         }
         // Increase NauseaScore Button Event
-        if (SteamVR_Actions.default_upperButton.GetStateDown(SteamVR_Input_Sources.Any))
+        /*
+        if (upperButtonAction.action != null && upperButtonAction.action.WasPressedThisFrame())
         {
             score.scoreUp(true);
             Debug.Log("up");
         }
         // Decrease NauseaScore Button Event
-        if (SteamVR_Actions.default_lowerButton.GetStateDown(SteamVR_Input_Sources.Any))
+        if (lowerButtonAction.action != null && lowerButtonAction.action.WasPressedThisFrame())
         {
             score.scoreDown(true);
             Debug.Log("down");
         }
-        if (SteamVR_Actions.default_upperButton.GetState(SteamVR_Input_Sources.Any))
+        if (upperButtonAction.action != null && upperButtonAction.action.IsPressed())
         {
             score.scoreUp(false);
         }
 
-        if (SteamVR_Actions.default_lowerButton.GetState(SteamVR_Input_Sources.Any))
+        if (lowerButtonAction.action != null && lowerButtonAction.action.IsPressed())
         {
             score.scoreDown(false);
         }
+        */
         // Submit Questionaire
-        if (SteamVR_Actions.default_lowerButton.GetStateUp(SteamVR_Input_Sources.Any) || SteamVR_Actions.default_upperButton.GetStateUp(SteamVR_Input_Sources.Any))
+        if ((lowerButtonAction.action != null && lowerButtonAction.action.WasReleasedThisFrame()) || (upperButtonAction.action != null && upperButtonAction.action.WasReleasedThisFrame()))
         {
-            score.submit();
+            // score.submit();
         }
         // Hold Triggerbutton or Space to start the movement
-        if (SteamVR_Actions.default_GrabGrip.GetState(SteamVR_Input_Sources.Any) || Input.GetKey(KeyCode.Space))
+        if ((grabGripAction.action != null && grabGripAction.action.IsPressed()) || Input.GetKey(KeyCode.Space))
         {
-            Debug.Log("grip or space");
-            
-            score.start();  
+            Debug.Log("Game Started via Grip or Space");
+            gameStarted = true;
+            // score.start();  
         }
         // Reset the starttimer for accurate logging
-        if (SteamVR_Actions.default_GrabGrip.GetStateUp(SteamVR_Input_Sources.Any))
+        if (grabGripAction.action != null && grabGripAction.action.WasReleasedThisFrame())
         {
-            score.resetStartTimer();
+            // score.resetStartTimer();
         } 
-        if (SteamVR_Actions.default_GrabPinch.GetStateDown(SteamVR_Input_Sources.Any) || Input.GetKeyDown(KeyCode.W) && wireFrameModeActive)
+        if ((grabPinchAction.action != null && grabPinchAction.action.WasPressedThisFrame()) || Input.GetKeyDown(KeyCode.W) && wireFrameModeActive)
         {
            // changeVisualFlow();
         }
@@ -82,12 +91,13 @@ public class controls : MonoBehaviour
         if (manualStart)
             gameStarted = true;
 
-        triggerAxis = SteamVR_Actions.default_Squeeze.GetAxis(SteamVR_Input_Sources.Any);
+        if (squeezeAction.action != null)
+            triggerAxis = squeezeAction.action.ReadValue<float>();
 
     }
     void changeVisualFlow()
     {
-        if (NauseaScore.pauseHighCS)
+        if (false) // NauseaScore.pauseHighCS
             return;
         visualFlowObjects.SetActive(!visualFlowObjects.activeSelf);
         snow.SetActive(!snow.activeSelf);

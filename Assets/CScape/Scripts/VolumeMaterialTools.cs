@@ -129,7 +129,7 @@ public class VolumeMaterialTools : MonoBehaviour
 
         //Get rendered data back to a new texture
         Texture2D result = new Texture2D(width, height, TextureFormat.ARGB32, true);
-        result.Resize(width, height);
+        result.Reinitialize(width, height);
         result.ReadPixels(texR, 0, 0, true);
         return result;
     }
@@ -147,7 +147,7 @@ public class VolumeMaterialTools : MonoBehaviour
         _gpu_scale(tex, width, height, mode);
 
         // Update new texture
-        tex.Resize(width, height);
+        tex.Reinitialize(width, height);
         tex.ReadPixels(texR, 0, 0, true);
         tex.Apply(true);        //Remove this if you hate us applying textures for you :)
     }

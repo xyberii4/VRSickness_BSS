@@ -9,7 +9,13 @@ public class Data
     public static List<float> SpeedPoints;
     public static bool ShowSpeedIndication=true;
     public static string envSize = "S", MSreductionMethod = "none", condition, locoMoInterface = "passive";
-    public static NauseaScore.ControlMode translationMode = NauseaScore.ControlMode.passive, rotationMode = NauseaScore.ControlMode.passive;
+    public enum ControlMode
+    {
+        passive,
+        virtual_active,
+        physical_active
+    }
+    public static ControlMode translationMode = ControlMode.passive, rotationMode = ControlMode.passive;
 
 
 

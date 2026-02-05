@@ -167,10 +167,12 @@ namespace SimpleBlurURP
             {
                 for (int i = 0; i < 2; i++)
                 {
+                    /*
                     blurPropertyID[i] = Shader.PropertyToID($"BlurID-{ salt[i] }");
                     cmd.GetTemporaryRT(blurPropertyID[i], cameraTextureDescriptor.width / Downsample, cameraTextureDescriptor.height / Downsample, 0, FilterMode.Bilinear, RenderTextureFormat.ARGB32);
                     renderTargetIdentifiers[i] = new RenderTargetIdentifier(blurPropertyID[i]);
                     ConfigureTarget(renderTargetIdentifiers[i]);
+                    */
                 }
             }
 
@@ -263,9 +265,9 @@ namespace SimpleBlurURP
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
 #if !UNITY_2022
-            blurPass.Setup(renderer.cameraColorTarget);
+            // blurPass.Setup(renderer.cameraColorTarget);
 #endif
-            renderer.EnqueuePass(blurPass);
+            // renderer.EnqueuePass(blurPass);
         }
 
 #if UNITY_2022
@@ -276,7 +278,7 @@ namespace SimpleBlurURP
         /// <param name="renderingData"></param>
         public override void SetupRenderPasses(ScriptableRenderer renderer, in RenderingData renderingData)
         {
-            blurPass.Setup(renderer.cameraColorTargetHandle);
+            // blurPass.Setup(renderer.cameraColorTargetHandle);
         }
 #endif
     }

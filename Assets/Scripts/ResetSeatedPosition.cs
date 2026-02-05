@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
-using Valve.VR;
 
 // This script is used to change the player's position to specified position (i.e. a vehicle or virtual body)
 
@@ -21,14 +20,14 @@ public class ResetSeatedPosition : MonoBehaviour {
 
     [SerializeField]
     [Tooltip("If this transform is set in the inspector the transform set will be used to find the VR Camera gameobject. If this is not set, the default VRCamera (eye) will be used.")]
-    Transform m_SteamVRCamera;
+    Transform m_VRCamera;
 
     [SerializeField]
     Transform userHeadCenter = null;
 
     [SerializeField]
     [Tooltip("If this transform is set in the inspector the transform set will be used to find the SteamVRObjects gameobject. If this is not set, the default SteamVRObjects will be used.")]
-    Transform m_SteamVRObjects;
+    Transform m_XROrigin;
 
     [SerializeField]
     [Tooltip("If the head object will be visualized and rotated")]
@@ -37,19 +36,32 @@ public class ResetSeatedPosition : MonoBehaviour {
     bool m_Calibrated = false, m_FirstRotation = true;
 
     //Store gameObject reference (this is used to move the Steam VR Player Object)
-    GameObject m_SteamVRPositionAux;
+    GameObject m_VRPositionAux;
 
     public bool m_ResetYawRotation = true, m_ResetHeightPosition = true, m_VRCameraRotatesVirtualCamera = true;
     
     private void Start()
     {
         // If null, finds the VRCamera (gets changed to (eye) after entering playmode) gameobject in the scene's hierarchy and assigns it
-        if (m_SteamVRCamera == null)
-            m_SteamVRCamera = GameObject.Find("VRCamera (eye)").transform;
+        if (m_VRCamera == null)
+        {
+            if (Camera.main != null)
+                m_VRCamera = Camera.main.transform;
+            else
+                m_VRCamera = GameObject.Find("Main Camera").transform;
+        }
 
         // If null, finds the SteamVRObjects gameobject in the scene's hierarchy and assigns it
-        if (m_SteamVRObjects == null)
-            m_SteamVRObjects = GameObject.Find("SteamVRObjects").transform;
+        if (m_XROrigin == null)
+        {
+            var origin = GameObject.Find("XR Origin");
+            if (origin != null) m_XROrigin = origin.transform;
+            else 
+            {
+                var cameraRig = GameObject.Find("CameraRig");
+                if (cameraRig != null) m_XROrigin = cameraRig.transform;
+            }
+        }
 
         // If null, finds the Player gameobject in the scene's hierarchy and assigns it
         if (m_Player == null)
@@ -75,7 +87,7 @@ public class ResetSeatedPosition : MonoBehaviour {
                 {
                     // rotates the 3D model's head joint based on the VRCamera (steamCamera's) rotation
                     if (m_HeadObject != null)
-                        m_HeadObject.GetChild(0).transform.rotation = m_SteamVRCamera.transform.rotation;
+                        m_HeadObject.GetChild(0).transform.rotation = m_VRCamera.transform.rotation;
                 }
             }                        
         }        
@@ -101,7 +113,7 @@ public class ResetSeatedPosition : MonoBehaviour {
  
     private void ResetSeatedPose(Transform desiredHeadPose)
     {
-        if (m_SteamVRCamera != null && m_SteamVRObjects != null)
+        if (m_VRCamera != null && m_XROrigin != null)
         {            
             //ROTATION
 
@@ -109,42 +121,43 @@ public class ResetSeatedPosition : MonoBehaviour {
             if (m_ResetYawRotation == true)
             {
                 // Get current head heading in scene (y-only, to avoid tilting the floor)
-                float offsetAngle = m_SteamVRCamera.rotation.eulerAngles.y - desiredHeadPose.rotation.eulerAngles.y;
+                float offsetAngle = m_VRCamera.rotation.eulerAngles.y - desiredHeadPose.rotation.eulerAngles.y;
 
                 // Now rotate CameraRig/SteamVRObjects in opposite direction to compensate
-                m_SteamVRObjects.Rotate(0f, -offsetAngle, 0f);
+                // Now rotate XR Origin in opposite direction to compensate
+                m_XROrigin.Rotate(0f, -offsetAngle, 0f);
             }
 
 
             //POSITION
 
-            // Calculate postional offset between CameraRig and Camera
-            Vector3 offsetPos = m_SteamVRCamera.position - m_SteamVRObjects.position;
+            // Calculate postional offset between XR Origin and Camera
+            Vector3 offsetPos = m_VRCamera.position - m_XROrigin.position;
 
             if(userHeadCenter != null)
-                offsetPos = userHeadCenter.position - m_SteamVRObjects.position;
+                offsetPos = userHeadCenter.position - m_XROrigin.position;
 
             // If m_ResetHeightPosition is false, then do not calibrate the Y component (leave it at the camera/user's height)
             if (m_ResetHeightPosition == false)
             {
-                desiredHeadPose.position = new Vector3(desiredHeadPose.position.x, m_SteamVRCamera.position.y, desiredHeadPose.position.z);
+                desiredHeadPose.position = new Vector3(desiredHeadPose.position.x, m_VRCamera.position.y, desiredHeadPose.position.z);
             }
 
-            // Reposition CameraRig to desired position minus offset
-            m_SteamVRObjects.position = (desiredHeadPose.position - offsetPos);
+            // Reposition XR Origin to desired position minus offset
+            m_XROrigin.position = (desiredHeadPose.position - offsetPos);
 
             //Spawn object (if it does not exist, else just update its position)
-            // This is used to move the Steam VR Player Object
+            // This is used to move the VR Player Object
             if (GameObject.Find("Player_Position_Holder") == false)
             {
-                m_SteamVRPositionAux = new GameObject("Player_Position_Holder");
-                m_SteamVRPositionAux.transform.parent = this.transform.parent;
-                m_SteamVRPositionAux.transform.position = m_Player.position;
+                m_VRPositionAux = new GameObject("Player_Position_Holder");
+                m_VRPositionAux.transform.parent = this.transform.parent;
+                m_VRPositionAux.transform.position = m_Player.position;
             }
 
             else
             {
-                m_SteamVRPositionAux.transform.position = m_Player.position;
+                m_VRPositionAux.transform.position = m_Player.position;
             }                                       
           
             Debug.Log("Seat recentered!");
@@ -152,7 +165,7 @@ public class ResetSeatedPosition : MonoBehaviour {
         
         else
         {
-          Debug.Log("Error: SteamVR objects not found!");
+          Debug.Log("Error: VR objects not found!");
         }
     }
 
@@ -165,6 +178,6 @@ public class ResetSeatedPosition : MonoBehaviour {
     // Returns the Steam VR Position Aux's transform
     public Transform GetVRPlayerAuxPosition()
     {
-        return m_SteamVRPositionAux.transform;
+        return m_VRPositionAux.transform;
     }
 }

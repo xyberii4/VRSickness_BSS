@@ -4,14 +4,15 @@ using UnityEngine;
 using static UnityEngine.Mathf;
 using System.IO;
 using SimpleBlurURP;
-using Valve.VR;
+using UnityEngine.InputSystem;
 
 
 public class LinearEquation : MonoBehaviour
 {   [Tooltip("Toggle to disable autonomous movement")]
     public bool set_manually = false;
-    public bool active_locomotion = true;
+    public bool active_locomotion = false;
     public float activeSensitivity = 0.1f;
+    public InputActionProperty squeezeAction;
 
     [Range(0, 2 * PI)]
     public float currentTheta;
@@ -108,6 +109,12 @@ public class LinearEquation : MonoBehaviour
 
     private void Start()
     {
+        // Auto-configure active vs passive based on Data settings if possible, or default to passive for benchmark
+        if (Data.locoMoInterface == "passive")
+            active_locomotion = false;
+
+        // Ensure actions are enabled if they exist
+        if (squeezeAction.action != null) squeezeAction.action.Enable();
 
         rv.InitReadValues();
 
@@ -193,7 +200,14 @@ public class LinearEquation : MonoBehaviour
                 }
                else
                {
-                    currentTheta = calculateActiveTheta(SteamVR_Actions.default_Squeeze.GetAxis(SteamVR_Input_Sources.Any));
+                    float axis = 0;
+                    if(squeezeAction.action != null && squeezeAction.action.enabled) 
+                        axis = squeezeAction.action.ReadValue<float>();
+                    
+                    // Fallback for keyboard testing
+                    if (axis == 0)
+                        axis = Input.GetAxis("Vertical");
+                    currentTheta = calculateActiveTheta(axis);
                     transform.position = v2tov3(f_polar(currentTheta));
                }
             }
