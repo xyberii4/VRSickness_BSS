@@ -1,13 +1,17 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Pause : MonoBehaviour
 {
-    float intensity, curVel, curVel2;
-    Light[] lights, neonlights;
-    float neonlightIntensity, lightsIntensity;
-    public GameObject sun, snow, neonLights;
+    float intensity,
+        curVel,
+        curVel2;
+    Light[] lights,
+        neonlights;
+    float neonlightIntensity,
+        lightsIntensity;
+    public GameObject sun,
+        snow,
+        neonLights;
     bool m_slowDown;
 
     // Start is called before the first frame update
@@ -17,22 +21,18 @@ public class Pause : MonoBehaviour
         lightsIntensity = lights[0].intensity;
         neonlights = neonLights.GetComponentsInChildren<Light>();
         neonlightIntensity = neonlights[0].intensity;
-        
     }
 
     // Update is called once per frame
     void Update()
     {
-
-
-        if (m_slowDown) 
-        { 
-        intensity = Mathf.SmoothDamp(intensity, 1f, ref curVel, 3f);
+        if (m_slowDown)
+        {
+            intensity = Mathf.SmoothDamp(intensity, 1f, ref curVel, 3f);
             foreach (var item in lights)
             {
                 item.intensity = intensity;
             }
-
 
             neonlightIntensity = Mathf.SmoothDamp(neonlightIntensity, 0f, ref curVel2, 3f);
             foreach (var item in neonlights)
@@ -48,18 +48,13 @@ public class Pause : MonoBehaviour
                 item.intensity = intensity;
             }
 
-
             neonlightIntensity = Mathf.SmoothDamp(neonlightIntensity, 1f, ref curVel2, 3f);
             foreach (var item in neonlights)
             {
                 item.intensity = neonlightIntensity;
             }
-
         }
-
-
     }
-
 
     public void PauseMovement(bool slowDown)
     {

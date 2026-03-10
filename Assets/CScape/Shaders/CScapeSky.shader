@@ -273,7 +273,7 @@ Shader "Clouds"
 			CBUFFER_END
 			sampler2D _Texture0;
 			sampler2D _TextureSample2;
-			uniform float4 _CameraDepthTexture_TexelSize;
+			// uniform float4 _CameraDepthTexture_TexelSize;
 
 
 			inline float2 POM( sampler2D heightMap, float2 uvs, float2 dx, float2 dy, float3 normalWorld, float3 viewWorld, float3 viewDirTan, int minSamples, int maxSamples, float parallax, float refPlane, float2 tilling, float2 curv, int index )

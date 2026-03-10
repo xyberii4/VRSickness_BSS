@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Speed : MonoBehaviour
@@ -12,6 +10,7 @@ public class Speed : MonoBehaviour
     {
         lastPos = transform.position;
     }
+
     // Update is called once per frame
     void Update()
     {

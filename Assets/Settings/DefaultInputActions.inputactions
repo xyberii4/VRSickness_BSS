@@ -1,0 +1,396 @@
+{
+  "name": "DefaultInputActions",
+  "maps": [
+    {
+      "name": "XRI RightHand",
+      "id": "c3e98058-290b-46e2-9640-0c3095031d27",
+      "actions": [
+        {
+          "name": "Move",
+          "type": "Value",
+          "id": "4b68498f-4903-4902-921a-555627a1496a",
+          "expectedControlType": "Vector2",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": true
+        },
+        {
+          "name": "Position",
+          "type": "Value",
+          "id": "c4c51457-3760-466d-9650-7171739c36c6",
+          "expectedControlType": "Vector3",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": true
+        },
+        {
+          "name": "Rotation",
+          "type": "Value",
+          "id": "893309c6-1250-4828-98e8-250320496156",
+          "expectedControlType": "Quaternion",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": true
+        },
+        {
+          "name": "Select",
+          "type": "Button",
+          "id": "06059d33-4f1e-4512-822e-503b13723707",
+          "expectedControlType": "Button",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": false
+        },
+        {
+          "name": "Activate",
+          "type": "Value",
+          "id": "2704043b-7435-4cb4-bda6-8a9d16a57530",
+          "expectedControlType": "Axis",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": true
+        },
+        {
+          "name": "UI Press",
+          "type": "Button",
+          "id": "2da1fb1a-5d46-4a43-85c8-11108ab46114",
+          "expectedControlType": "Button",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": false
+        },
+        {
+          "name": "Grip Value",
+          "type": "Value",
+          "id": "f5d05060-d66a-493e-902e-ea782ac5e78a",
+          "expectedControlType": "Axis",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": true
+        },
+        {
+          "name": "Primary Button",
+          "type": "Button",
+          "id": "c8959d99-80ba-4780-994c-cb141445b204",
+          "expectedControlType": "Button",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": false
+        },
+        {
+          "name": "Secondary Button",
+          "type": "Button",
+          "id": "e987c09e-71bd-4221-a083-0599c1584288",
+          "expectedControlType": "Button",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": false
+        }
+      ],
+      "bindings": [
+        {
+          "name": "",
+          "id": "d0f85419-74e2-4467-932f-76798083818e",
+          "path": "<XRController>{RightHand}/thumbstick",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "Move",
+          "isComposite": false,
+          "isPartOfComposite": false
+        },
+        {
+          "name": "",
+          "id": "55c45155-2266-455b-990c-cc2830f37059",
+          "path": "<XRController>{RightHand}/devicePosition",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "Position",
+          "isComposite": false,
+          "isPartOfComposite": false
+        },
+        {
+          "name": "",
+          "id": "6741b24e-3733-47ff-b852-62846433367d",
+          "path": "<XRController>{RightHand}/deviceRotation",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "Rotation",
+          "isComposite": false,
+          "isPartOfComposite": false
+        },
+        {
+          "name": "",
+          "id": "aa1459a9-34ba-467f-9464-af0dc967201c",
+          "path": "<XRController>{RightHand}/gripPressed",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "Select",
+          "isComposite": false,
+          "isPartOfComposite": false
+        },
+        {
+          "name": "",
+          "id": "936934a3-4876-43b9-a476-d1838105658e",
+          "path": "<XRController>{RightHand}/trigger",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "Activate",
+          "isComposite": false,
+          "isPartOfComposite": false
+        },
+        {
+          "name": "",
+          "id": "ac6f082e-6d1a-4c22-b586-10526e038038",
+          "path": "<XRController>{RightHand}/triggerPressed",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "UI Press",
+          "isComposite": false,
+          "isPartOfComposite": false
+        },
+        {
+          "name": "",
+          "id": "847ff76e-8d8a-493a-861f-95568bd49c25",
+          "path": "<XRController>{RightHand}/primaryButton",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "Primary Button",
+          "isComposite": false,
+          "isPartOfComposite": false
+        },
+        {
+          "name": "",
+          "id": "402e6c43-162e-4e4b-b003-888e2808c1d5",
+          "path": "<XRController>{RightHand}/secondaryButton",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "Secondary Button",
+          "isComposite": false,
+          "isPartOfComposite": false
+        },
+        {
+          "name": "",
+          "id": "c1f83c16-e575-4d76-b33a-2309e3a60c04",
+          "path": "<XRController>{RightHand}/grip",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "Grip Value",
+          "isComposite": false,
+          "isPartOfComposite": false
+        }
+      ]
+    },
+    {
+      "name": "XRI LeftHand",
+      "id": "52c80327-0435-430c-8438-6f5df3158428",
+      "actions": [
+        {
+          "name": "Move",
+          "type": "Value",
+          "id": "3127815d-8386-4e4f-b649-623837482596",
+          "expectedControlType": "Vector2",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": true
+        },
+        {
+          "name": "Position",
+          "type": "Value",
+          "id": "6d370163-f273-41eb-ba7a-9cb8c5a45479",
+          "expectedControlType": "Vector3",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": true
+        },
+        {
+          "name": "Rotation",
+          "type": "Value",
+          "id": "993c1274-1845-420a-b50a-f0653069b52a",
+          "expectedControlType": "Quaternion",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": true
+        },
+        {
+          "name": "Select",
+          "type": "Button",
+          "id": "a92701f5-e234-4b52-972c-e35cfa69b50e",
+          "expectedControlType": "Button",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": false
+        },
+        {
+          "name": "Activate",
+          "type": "Value",
+          "id": "394f4c28-97a9-4b68-8a8a-36d716885df4",
+          "expectedControlType": "Axis",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": true
+        },
+        {
+          "name": "UI Press",
+          "type": "Button",
+          "id": "535f299f-7acb-48ae-94b2-a4005175317a",
+          "expectedControlType": "Button",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": false
+        },
+         {
+          "name": "Grip Value",
+          "type": "Value",
+          "id": "c3e44929-7988-4680-a6e5-408139580b06",
+          "expectedControlType": "Axis",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": true
+        }
+      ],
+      "bindings": [
+        {
+          "name": "",
+          "id": "42603842-8349-43c2-a44d-26c715569502",
+          "path": "<XRController>{LeftHand}/thumbstick",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "Move",
+          "isComposite": false,
+          "isPartOfComposite": false
+        },
+        {
+          "name": "",
+          "id": "893c8375-3921-4d10-9189-614532587532",
+          "path": "<XRController>{LeftHand}/devicePosition",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "Position",
+          "isComposite": false,
+          "isPartOfComposite": false
+        },
+        {
+          "name": "",
+          "id": "18932644-8846-4475-b984-633182512644",
+          "path": "<XRController>{LeftHand}/deviceRotation",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "Rotation",
+          "isComposite": false,
+          "isPartOfComposite": false
+        },
+        {
+          "name": "",
+          "id": "2788e02d-0453-488f-a72a-43cf1805562d",
+          "path": "<XRController>{LeftHand}/gripPressed",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "Select",
+          "isComposite": false,
+          "isPartOfComposite": false
+        },
+        {
+          "name": "",
+          "id": "1845a782-b601-4966-880c-e27464a938fc",
+          "path": "<XRController>{LeftHand}/trigger",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "Activate",
+          "isComposite": false,
+          "isPartOfComposite": false
+        },
+        {
+          "name": "",
+          "id": "c8567584-399a-413e-a892-04e824147775",
+          "path": "<XRController>{LeftHand}/triggerPressed",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "UI Press",
+          "isComposite": false,
+          "isPartOfComposite": false
+        },
+         {
+          "name": "",
+          "id": "bb9205cf-898e-4a6c-941c-c052827110e5",
+          "path": "<XRController>{LeftHand}/grip",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "Grip Value",
+          "isComposite": false,
+          "isPartOfComposite": false
+        }
+      ]
+    },
+    {
+      "name": "XRI UI",
+      "id": "038379c2-55f4-44ee-a511-2092c48da40f",
+      "actions": [
+        {
+            "name": "Point",
+            "type": "PassThrough",
+            "id": "90d19641-fc8a-440d-b1e9-4054a5c53b21",
+            "expectedControlType": "Vector2",
+            "processors": "",
+            "interactions": ""
+        },
+        {
+            "name": "Click",
+            "type": "PassThrough",
+            "id": "e98e4d3c-9407-4277-bfcd-9f754b238290",
+            "expectedControlType": "Button",
+            "processors": "",
+            "interactions": ""
+        },
+        {
+            "name": "ScrollWheel",
+            "type": "PassThrough",
+            "id": "3be27271-e773-4537-8e6f-124b870295be",
+            "expectedControlType": "Vector2",
+            "processors": "",
+            "interactions": ""
+        }
+      ],
+      "bindings": [
+        {
+            "name": "",
+            "id": "a2444983-424a-464a-9359-009761a2db36",
+            "path": "<XRController>/triggerPressed",
+            "interactions": "",
+            "processors": "",
+            "groups": "",
+            "action": "Click",
+            "isComposite": false,
+            "isPartOfComposite": false
+        },
+        {
+            "name": "",
+            "id": "b3e34551-5612-3212-921a-555627a1496b",
+            "path": "<XRController>/thumbstick",
+            "interactions": "",
+            "processors": "",
+            "groups": "",
+            "action": "ScrollWheel",
+            "isComposite": false,
+            "isPartOfComposite": false
+        }
+      ]
+    }
+  ],
+  "controlSchemes": []
+}

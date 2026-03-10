@@ -203,19 +203,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   onHandClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 4239933230735283174}
-        m_TargetAssemblyTypeName: Questionnaire, Assembly-CSharp
-        m_MethodName: increaseScore
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 8031738934918791299}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Slider, UnityEngine.UI
-          m_IntArgument: 5
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &1276190415846555167
 GameObject:
   m_ObjectHideFlags: 0

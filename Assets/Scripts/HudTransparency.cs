@@ -1,8 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
+
 public class HudTransparency : MonoBehaviour
 {
     public Image slider;
@@ -16,10 +15,11 @@ public class HudTransparency : MonoBehaviour
     float value;
     float speed;
     float cooldown;
+
     // Start is called before the first frame update
     void Start()
     {
-        value = transparencyTarget;   
+        value = transparencyTarget;
     }
 
     // Update is called once per frame
@@ -27,9 +27,8 @@ public class HudTransparency : MonoBehaviour
     {
         // Smooth blendanimation of the UI
         cooldown -= Time.deltaTime;
-        if(cooldown < 0)
-        value = Mathf.SmoothDamp(value, transparencyTarget, ref speed, transSpeed);
-
+        if (cooldown < 0)
+            value = Mathf.SmoothDamp(value, transparencyTarget, ref speed, transSpeed);
 
         Color c = slider.color;
         c.a = value;
@@ -41,7 +40,7 @@ public class HudTransparency : MonoBehaviour
 
         c = text.color;
         c.a = value;
-        text.color= c;
+        text.color = c;
 
         c = score.color;
         c.a = value;

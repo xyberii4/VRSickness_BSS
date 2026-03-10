@@ -1,10 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-
 using UnityEngine.SceneManagement;
-
+using UnityEngine.UI;
 
 public class mainMenu : MonoBehaviour
 {
@@ -21,7 +17,6 @@ public class mainMenu : MonoBehaviour
         sebtn.onClick.AddListener(SEOnClick);
         mebtn.onClick.AddListener(MEOnClick);
         lebtn.onClick.AddListener(LEOnClick);
-
     }
 
     void SEOnClick()

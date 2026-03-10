@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class readValues : MonoBehaviour
@@ -7,12 +5,15 @@ public class readValues : MonoBehaviour
     public float metersTravelled = 0;
     public float metersTravelledForHeight = 0;
     public float secondsTravelled = 0;
-    public float meter_per_sec, accel = 0;
-    float rotation = 357.113f*10, rotationOld, sumRotation, sumRotationOld, rotAcc, oldMS = 0f;
-    float msnotnull,accelnotnull;
+    public float meter_per_sec,
+        accel = 0;
+    float oldMS = 0f;
+    float msnotnull,
+        accelnotnull;
     Vector3 lastPos;
     bool init;
     LinearEquation linear;
+
     public void InitReadValues()
     {
         lastPos = transform.position;
@@ -21,11 +22,11 @@ public class readValues : MonoBehaviour
 
     public void DoUpdate()
     {
-        if (controls.gameStarted)
+        if (ExperimentManager.Instance && ExperimentManager.Instance.IsMovementEnabled)
         {
-            if (!init) 
+            if (!init)
             {
-            InitReadValues();
+                InitReadValues();
                 init = true;
             }
 
@@ -45,10 +46,7 @@ public class readValues : MonoBehaviour
                 accelnotnull = accel;
             oldMS = msnotnull;
             lastPos = transform.position;
-   
         }
-
-    
     }
 
     public static Vector2 v3tov2(Vector3 v)
@@ -58,8 +56,8 @@ public class readValues : MonoBehaviour
 
     /*
      * Not used anymore!
-     * 
-     * 
+     *
+     *
     public float ComputeRotData(string accVel)
     {
         if (accVel == "acc")
@@ -92,12 +90,12 @@ public class readValues : MonoBehaviour
      */
     public float getMS()
     {
-        return Mathf.Min(Mathf.Max(linear.minSpeed,msnotnull), linear.maxSpeed);
+        return Mathf.Min(Mathf.Max(linear.minSpeed, msnotnull), linear.maxSpeed);
     }
+
     public float getAcc()
     {
         return accelnotnull;
     }
-    
-   
 }
+
