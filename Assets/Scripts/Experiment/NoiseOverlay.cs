@@ -8,20 +8,24 @@ public class NoiseOverlay : MonoBehaviour
     public float globalAlpha = 0.0f; // StimulationController
 
     private RawImage rawImage;
-    private Texture2D noiseTexture;
-    private Color[] pixels;
-    private int width = 256;
-    private int height = 256;
+    private Material noiseMaterial;
 
     void Awake()
     {
         rawImage = GetComponent<RawImage>();
-        noiseTexture = new Texture2D(width, height, TextureFormat.RGBA32, false);
-        noiseTexture.filterMode = FilterMode.Point; // pixelated static
-        rawImage.texture = noiseTexture;
-        pixels = new Color[width * height];
-
-        UpdateNoise();
+        
+        // procedural noise material
+        Shader noiseShader = Shader.Find("Custom/UIProceduralNoise");
+        if (noiseShader != null)
+        {
+            noiseMaterial = new Material(noiseShader);
+            rawImage.material = noiseMaterial;
+            rawImage.texture = null; // shader handles rendering
+        }
+        else
+        {
+            Debug.LogError("Could not find Custom/UIProceduralNoise shader.");
+        }
     }
 
     void Update()
@@ -35,27 +39,16 @@ public class NoiseOverlay : MonoBehaviour
         {
             if (rawImage.enabled)
                 rawImage.enabled = false;
-            return;
         }
         else
         {
             if (!rawImage.enabled)
                 rawImage.enabled = true;
+
+            if (noiseMaterial != null)
+            {
+                noiseMaterial.SetFloat("_GlobalAlpha", globalAlpha);
+            }
         }
-
-        UpdateNoise();
-    }
-
-    private void UpdateNoise()
-    {
-        for (int i = 0; i < pixels.Length; i++)
-        {
-            float val = Random.value;
-            // grayscale noise with current alpha
-            pixels[i] = new Color(val, val, val, globalAlpha);
-        }
-
-        noiseTexture.SetPixels(pixels);
-        noiseTexture.Apply();
     }
 }
