@@ -7,24 +7,34 @@ public class NoiseOverlay : MonoBehaviour
     [Range(0f, 0.15f)]
     public float globalAlpha = 0.0f; // StimulationController
 
+    [Header("Shader Dependency")]
+    [Tooltip("noise shader")]
+    public Shader proceduralNoiseShader;
+
     private RawImage rawImage;
     private Material noiseMaterial;
 
     void Awake()
     {
         rawImage = GetComponent<RawImage>();
-        
-        // procedural noise material
-        Shader noiseShader = Shader.Find("Custom/UIProceduralNoise");
-        if (noiseShader != null)
+
+        // referenced shader or fallback to Find
+        Shader shaderToUse =
+            proceduralNoiseShader != null
+                ? proceduralNoiseShader
+                : Shader.Find("Custom/UIProceduralNoise");
+
+        if (shaderToUse != null)
         {
-            noiseMaterial = new Material(noiseShader);
+            noiseMaterial = new Material(shaderToUse);
             rawImage.material = noiseMaterial;
             rawImage.texture = null; // shader handles rendering
         }
         else
         {
-            Debug.LogError("Could not find Custom/UIProceduralNoise shader.");
+            Debug.LogError(
+                "UIProceduralNoise shader is missing! Please assign it in the Inspector."
+            );
         }
     }
 

@@ -78,7 +78,9 @@ Shader "Custom/UIProceduralNoise"
             // pixel noise hash func
             float hash(float2 p)
             {
-                return frac(sin(dot(p, float2(12.9898, 78.233))) * 43758.5453);
+                float dt = dot(p, float2(12.9898, 78.233));
+                float sn = sin(dt);
+                return frac(sn * 43758.5453);
             }
 
             fixed4 frag(v2f IN) : SV_Target

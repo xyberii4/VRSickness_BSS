@@ -91781,6 +91781,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NoiseOverlay
   globalAlpha: 0
+  proceduralNoiseShader: {fileID: 4800000, guid: d0ae148bff1b6904f9364c72135798b2,
+    type: 3}
 --- !u!1 &462384279
 GameObject:
   m_ObjectHideFlags: 0
@@ -303315,20 +303317,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1528793444}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &1528999158
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc1515ab76e54f068e2f2207940fab32, type: 3}
-  m_Name: XRI RightHand/Activate
-  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.InputActionReference
-  m_Asset: {fileID: -944628639613478452, guid: 0bb6afa9f205703469d2075835eeadf5, type: 3}
-  m_ActionId: 2704043b-7435-4cb4-bda6-8a9d16a57530
 --- !u!1 &1529055960
 GameObject:
   m_ObjectHideFlags: 0
@@ -305681,33 +305669,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StimulationController
   pinkNoise: {fileID: 1080911701}
   visualNoise: {fileID: 461820785}
-  stimulationDuration: 120
-  driftWarnMs: 3
-  driftReportEvery: 20
-  rescueGripAction:
-    m_UseReference: 1
-    m_Action:
-      m_Name: 
-      m_Type: 0
-      m_ExpectedControlType: 
-      m_Id: 2cca0828-1d21-45b9-9493-91e427517128
-      m_Processors: 
-      m_Interactions: 
-      m_SingletonActionBindings: []
-      m_Flags: 0
-    m_Reference: {fileID: 2123962388}
-  rescuePrimaryAction:
-    m_UseReference: 1
-    m_Action:
-      m_Name: 
-      m_Type: 0
-      m_ExpectedControlType: 
-      m_Id: ec72e94d-c514-4372-96bc-b0e00e1e1593
-      m_Processors: 
-      m_Interactions: 
-      m_SingletonActionBindings: []
-      m_Flags: 0
-    m_Reference: {fileID: 1528999158}
+  shamFadeSeconds: 10
 --- !u!4 &1540905957
 Transform:
   m_ObjectHideFlags: 0
@@ -420108,20 +420070,6 @@ Transform:
   - {fileID: 957102167}
   m_Father: {fileID: 1039219906}
   m_LocalEulerAnglesHint: {x: 0, y: 57.632, z: 0}
---- !u!114 &2123962388
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc1515ab76e54f068e2f2207940fab32, type: 3}
-  m_Name: XRI RightHand/Grip Value
-  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.InputActionReference
-  m_Asset: {fileID: -944628639613478452, guid: 0bb6afa9f205703469d2075835eeadf5, type: 3}
-  m_ActionId: f5d05060-d66a-493e-902e-ea782ac5e78a
 --- !u!1 &2124040472
 GameObject:
   m_ObjectHideFlags: 0
