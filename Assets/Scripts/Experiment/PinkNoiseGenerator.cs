@@ -3,12 +3,49 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class PinkNoiseGenerator : MonoBehaviour
 {
-    [Range(0f, 1f)]
-    public float volume = 0.0f; // StimulationController
-
     private AudioSource audioSource;
     private System.Random random;
     private float[] b;
+
+    private double sampleDuration;
+    private double angularVelocity;
+    private double internalTime = 0.0;
+    private double phaseShift = 0.0;
+    private int cycleCount = 0;
+    private int lastCycle = -1;
+    private int cyclesUntilNextShift;
+    private double freq = 18.0;
+
+    private volatile bool isRunning = false;
+    private volatile float targetIntensity = 0f;
+    private volatile bool applyPhaseShift = false;
+    private volatile bool resetRequested = false;
+    private volatile float currentSignal = 0f;
+
+    public void SetRunningState(bool running)
+    {
+        isRunning = running;
+    }
+
+    public void SetIntensity(float intensity)
+    {
+        targetIntensity = intensity;
+    }
+
+    public void SetStimulationParameters(bool applyPhaseShift)
+    {
+        this.applyPhaseShift = applyPhaseShift;
+    }
+
+    public void ResetPhase()
+    {
+        resetRequested = true;
+    }
+
+    public float GetCurrentEnvelope()
+    {
+        return currentSignal;
+    }
 
     private void Awake()
     {
@@ -21,6 +58,13 @@ public class PinkNoiseGenerator : MonoBehaviour
         audioSource.loop = true;
 
         audioSource.spatialBlend = 0f;
+
+        int sampleRate = AudioSettings.outputSampleRate;
+        if (sampleRate == 0) sampleRate = 44100;
+        
+        sampleDuration = 1.0 / sampleRate;
+        angularVelocity = 2.0 * System.Math.PI * freq;
+        cyclesUntilNextShift = random.Next(3, 10);
     }
 
     private void Start()
@@ -33,9 +77,23 @@ public class PinkNoiseGenerator : MonoBehaviour
 
     private void OnAudioFilterRead(float[] data, int channels)
     {
+        bool localIsRunning = isRunning;
+        float localIntensity = targetIntensity;
+        bool localApplyPhaseShift = applyPhaseShift;
+
         // return immediately if silent
-        if (volume <= 0.001f)
+        if (!localIsRunning || localIntensity <= 0.001f)
             return;
+
+        if (resetRequested)
+        {
+            internalTime = 0.0;
+            lastCycle = -1;
+            cycleCount = 0;
+            phaseShift = 0.0;
+            cyclesUntilNextShift = random.Next(3, 10);
+            resetRequested = false;
+        }
 
         for (int i = 0; i < data.Length; i += channels)
         {
@@ -54,13 +112,38 @@ public class PinkNoiseGenerator : MonoBehaviour
             // rough normalization (pink noise accumulates, so has to be scaled down)
             pink *= 0.11f;
 
+            internalTime += sampleDuration;
+
+            if (localApplyPhaseShift)
+            {
+                int currentCycle = (int)(internalTime * freq);
+
+                if (currentCycle > lastCycle)
+                {
+                    lastCycle = currentCycle;
+                    cycleCount++;
+
+                    if (cycleCount >= cyclesUntilNextShift)
+                    {
+                        phaseShift += System.Math.PI;
+                        cycleCount = 0;
+                        cyclesUntilNextShift = random.Next(3, 10);
+                    }
+                }
+            }
+
+            double signal = 0.5 + 0.5 * System.Math.Sin(angularVelocity * internalTime + phaseShift);
+            currentSignal = (float)signal;
+
+            float volumeMultiplier = (float)signal * 0.5f * localIntensity;
+
             // volume matches
-            data[i] = pink * volume;
+            data[i] = pink * volumeMultiplier;
 
             // audio is interleaved, so apply to all channels
             if (channels == 2)
             {
-                data[i + 1] = pink * volume;
+                data[i + 1] = pink * volumeMultiplier;
             }
         }
     }

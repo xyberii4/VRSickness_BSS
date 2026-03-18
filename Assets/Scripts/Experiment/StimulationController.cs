@@ -36,7 +36,10 @@ public class StimulationController : MonoBehaviour
     private void Start()
     {
         if (pinkNoise)
-            pinkNoise.volume = 0;
+        {
+            pinkNoise.SetIntensity(0f);
+            pinkNoise.SetRunningState(false);
+        }
         if (visualNoise)
             visualNoise.globalAlpha = 0;
     }
@@ -60,13 +63,14 @@ public class StimulationController : MonoBehaviour
         Debug.Log($"Stimulation Started: {condition}, ShamFade: {shamFade}");
 
         startTime = Time.unscaledTime;
-        float freq = 18f;
-        float angularVelocity = 2f * Mathf.PI * freq;
 
-        float phaseShift = 0f;
-        int cycleCount = 0;
-        int lastCycle = -1;
-        int cyclesUntilNextShift = Random.Range(3, 10);
+        if (pinkNoise)
+        {
+            bool applyPhaseInversion = (condition == ExperimentCondition.Real || condition == ExperimentCondition.Sham);
+            pinkNoise.SetStimulationParameters(applyPhaseInversion);
+            pinkNoise.ResetPhase();
+            pinkNoise.SetRunningState(true);
+        }
 
         while (Time.unscaledTime - startTime < runDuration)
         {
@@ -88,42 +92,27 @@ public class StimulationController : MonoBehaviour
                 intensity = 0f; // sham runs 2/3
             }
 
-            // phase inversion
-            if (condition == ExperimentCondition.Real || condition == ExperimentCondition.Sham)
+            if (pinkNoise)
             {
-                int cyclesCompleted = Mathf.FloorToInt(t * freq);
-
-                if (cyclesCompleted > lastCycle)
-                {
-                    lastCycle = cyclesCompleted;
-                    cycleCount++;
-
-                    if (cycleCount >= cyclesUntilNextShift)
-                    {
-                        phaseShift += Mathf.PI;
-                        cycleCount = 0;
-                        cyclesUntilNextShift = Random.Range(3, 10);
-                    }
-                }
+                pinkNoise.SetIntensity(intensity);
+                currentSignalValue = pinkNoise.GetCurrentEnvelope();
+            }
+            else
+            {
+                currentSignalValue = 0f;
             }
 
-            // beta signal generation
-            // unscaledTime guarantees that cycles align exactly with the phase inversion
-            // avoids any audio/visual popping
-            float signal = 0.5f + 0.5f * Mathf.Sin(angularVelocity * t + phaseShift);
-
-            currentSignalValue = signal;
-
-            if (pinkNoise)
-                pinkNoise.volume = signal * 0.5f * intensity;
             if (visualNoise)
-                visualNoise.globalAlpha = signal * 0.15f * intensity;
+                visualNoise.globalAlpha = currentSignalValue * 0.15f * intensity;
 
             yield return null;
         }
 
         if (pinkNoise)
-            pinkNoise.volume = 0;
+        {
+            pinkNoise.SetIntensity(0f);
+            pinkNoise.SetRunningState(false);
+        }
         if (visualNoise)
             visualNoise.globalAlpha = 0;
 
@@ -138,7 +127,10 @@ public class StimulationController : MonoBehaviour
         StopAllCoroutines();
 
         if (pinkNoise)
-            pinkNoise.volume = 0;
+        {
+            pinkNoise.SetIntensity(0f);
+            pinkNoise.SetRunningState(false);
+        }
         if (visualNoise)
             visualNoise.globalAlpha = 0;
 
