@@ -21,7 +21,7 @@ public class FMSAssessmentManager : MonoBehaviour
     [Header("Settings")]
     public float inputTimeout = 15f;
 
-    private float timer = 0f;
+
     private bool isHudActive = false;
 
     public bool IsHudActive => isHudActive;
@@ -56,7 +56,6 @@ public class FMSAssessmentManager : MonoBehaviour
     public void ShowFMSAssessment()
     {
         isHudActive = true;
-        timer = 0;
         lastInputTime = Time.time;
         if (hudCanvas)
         {
@@ -161,7 +160,6 @@ public class FMSAssessmentManager : MonoBehaviour
     public void ForceStop()
     {
         HideHUD();
-        timer = 0f;
         Debug.Log("FMS Force Stopped");
     }
 }
