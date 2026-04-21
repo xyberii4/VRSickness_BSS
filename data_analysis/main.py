@@ -42,30 +42,29 @@ def main():
                     run.itc = np.nan
 
     df = extract_features_to_dataframe(dataset)
-    df.to_csv("dataset.csv", index=False)
-
-    analyzer = StatisticalAnalyzer(df)
+    df.to_excel("master.xlsx", index=False)
 
     print_dataset_summary(dataset)
     print_itc_summary(dataset)
 
-    # fms
-    df_fms_paired = analyzer.get_delta("FMS")
-    analyzer.run_test("FMS Growth (Run 3 - Run 1)", df_fms_paired)
-
-    # ssq
-    df_ssq_paired = analyzer.get_ssq_shift()
-    analyzer.run_test("SSQ Shift", df_ssq_paired)
-
-    # itc
-    df_itc_paired = analyzer.get_delta("ITC_Norm")
-    analyzer.run_test("18Hz ITC Growth (Run 3 - Run 1)", df_itc_paired)
-
-    analyzer.run_spearman_correlation()
-
-    print("\nGenerating Publication Plots...")
-    visualizer = Visualizer(df)
-    visualizer.generate_publication_plots()
+    # analyzer = StatisticalAnalyzer(df)
+    # # fms
+    # df_fms_paired = analyzer.get_delta("FMS")
+    # analyzer.run_test("FMS Growth (Run 3 - Run 1)", df_fms_paired)
+    #
+    # # ssq
+    # df_ssq_paired = analyzer.get_ssq_shift()
+    # analyzer.run_test("SSQ Shift", df_ssq_paired)
+    #
+    # # itc
+    # df_itc_paired = analyzer.get_delta("ITC_Norm")
+    # analyzer.run_test("18Hz ITC Growth (Run 3 - Run 1)", df_itc_paired)
+    #
+    # analyzer.run_spearman_correlation()
+    #
+    # print("\nGenerating Publication Plots...")
+    # visualizer = Visualizer(df)
+    # visualizer.generate_publication_plots()
 
 
 if __name__ == "__main__":

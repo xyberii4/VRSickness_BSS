@@ -68,12 +68,20 @@ class DatasetBuilder:
         return Participant(p_id=p_id, vimssq=vimssq, sessions=sessions)
 
     def _build_session(self, p_id: int, session_type: str):
+        tag = f"{p_id}_{session_type}"
         p_dir = self.raw_dir / str(p_id)
 
-        easy_fn = p_dir / f"{p_id}_{session_type}.easy"
-        csv_fn = p_dir / f"{p_id}_{session_type}.csv"
+        easy_fn = p_dir / f"{tag}.easy"
+        csv_fn = p_dir / f"{tag}.csv"
+        ssq_fn = p_dir / f"{tag}_SSQ.xlsx"
+        tol_fn = p_dir / f"{tag}_Safety_and_Tolerability.docx"
 
-        if not easy_fn.exists() or not csv_fn.exists():
+        if (
+            not easy_fn.exists()
+            or not csv_fn.exists()
+            or not ssq_fn.exists()
+            or not tol_fn.exists()
+        ):
             print(
                 f"warning: missing files for participant {p_id}, session '{session_type}'. skipped"
             )
@@ -95,7 +103,8 @@ class DatasetBuilder:
         baseline_epochs = self._create_epochs(baseline_mne)
 
         events, fms_scores = self.score_parser.parse_session_csv(csv_fn)
-        pre_ssq, post_ssq = self.score_parser.get_ssq(p_id, session_type)
+        sickness_scores = self.score_parser.get_sickness_scores(ssq_fn)
+        tolerability_score = self.score_parser.get_tolerability_score(tol_fn)
 
         runs = []
 
@@ -112,8 +121,9 @@ class DatasetBuilder:
         return Session(
             session_type=session_type,
             baseline_eeg=baseline_eeg,
-            pre_ssq=pre_ssq,
-            post_ssq=post_ssq,
+            pre_sickness=sickness_scores.get("Pre"),
+            post_sickness=sickness_scores.get("Post"),
+            tolerability=tolerability_score,
             runs=runs,
             baseline_epochs=baseline_epochs,
         )

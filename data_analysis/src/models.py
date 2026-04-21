@@ -37,8 +37,9 @@ class Run:
 class Session:
     session_type: str  # Real, Active, Sham
     baseline_eeg: EEGRecording
-    pre_ssq: float
-    post_ssq: float
+    pre_sickness: Dict[str, float]
+    post_sickness: Dict[str, float]
+    tolerability: float
     runs: List[Run]
     baseline_epochs: mne.Epochs
 
