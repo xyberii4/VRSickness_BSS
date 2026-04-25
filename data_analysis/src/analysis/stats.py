@@ -1,128 +1,159 @@
 import numpy as np
-from scipy.stats import wilcoxon, friedmanchisquare, spearmanr
+import pingouin as pg
+from scipy.stats import wilcoxon, friedmanchisquare, spearmanr, permutation_test
 
 
 class StatisticalAnalyzer:
-    def __init__(self, df):
+    def __init__(
+        self,
+        df,
+        subject_col="Participant_ID",
+        condition_col="Session_Type",
+        time_col="Run_Number",
+    ):
         self.df = df
+        self.subject_col = subject_col
+        self.condition_col = condition_col
+        self.time_col = time_col
 
     @staticmethod
-    def cohens_d_paired(a, b):
-        """get cohen's d"""
+    def _cohens_d_paired(a, b):
         diff = a - b
         std_diff = np.std(diff, ddof=1)
-
         return np.mean(diff) / std_diff
 
     @staticmethod
-    def run_wilcoxon(a, b):
-        """wilcoxon signed-rank test"""
+    def _wilcoxon(a, b):
         stat, p = wilcoxon(a, b)
         return stat, p
 
-    def run_spearman_correlation(self, var1="ITC_Norm", var2="FMS"):
-        """
-        spearman rank correlation between two variables
-        returns rho-statistic and p-value
-        """
+    def spearman_correlation(self, var1, var2):
         rho, p_val = spearmanr(self.df[var1], self.df[var2])
-
         print(f"\n--- Spearman Correlation: {var1} vs {var2} ---")
         print(f"rho = {rho:.4f}, p-value = {p_val:.4f} (n={len(self.df)})")
+        return rho, p_val
+
+    def partial_spearman(self, var1, var2, covar="Tolerability"):
+        clean_df = (
+            self.df[[self.subject_col, self.condition_col, var1, var2, covar]]
+            .dropna()
+            .drop_duplicates()
+        )
+        n = len(clean_df)
+
+        stats = pg.partial_corr(
+            data=clean_df, x=var1, y=var2, covar=covar, method="spearman"
+        )
+
+        r_col = next((c for c in stats.columns if c.lower() in ["r", "rho"]), None)
+        p_col = next(
+            (c for c in stats.columns if "p" in c.lower() and "val" in c.lower()), None
+        )
+
+        rho = float(stats[r_col].iloc[0])
+        p_val = float(stats[p_col].iloc[0])
+
+        print(f"\n--- Partial Spearman: {var1} vs {var2} (controlling for {covar}) ---")
+        print(f"rho = {rho:.4f}, p-value = {p_val:.4f} (n={n})")
 
         return rho, p_val
 
-    def get_delta(self, metric):
-        """
-        get growth for metric (run 3 - run 1)
-        """
-        df_runs = self.df[self.df["Run_Number"].isin([1, 3])].copy()
+    def get_delta(self, metric, start_time=1, end_time=3):
+        df_runs = self.df[self.df[self.time_col].isin([start_time, end_time])].copy()
 
         df_delta = df_runs.pivot(
-            index=["Participant_ID", "Session_Type"],
-            columns="Run_Number",
+            index=[self.subject_col, self.condition_col],
+            columns=self.time_col,
             values=metric,
         ).reset_index()
 
-        df_delta = df_delta.rename(columns={1: "Run_1", 3: "Run_3"})
-        df_delta[f"{metric}_Growth"] = df_delta["Run_3"] - df_delta["Run_1"]
-        df_delta = df_delta.dropna(subset=[f"{metric}_Growth"])
+        growth_col = f"{metric}_Growth"
+        df_delta[growth_col] = df_delta[end_time] - df_delta[start_time]
+        df_delta = df_delta.dropna(subset=[growth_col])
 
-        df_paired = df_delta.pivot(
-            index="Participant_ID", columns="Session_Type", values=f"{metric}_Growth"
+        return df_delta.pivot(
+            index=self.subject_col, columns=self.condition_col, values=growth_col
         ).reset_index()
 
-        return df_paired
-
-    def get_ssq_shift(self):
-        """Calculates the Post - Pre SSQ shift."""
-        df_ssq = (
-            self.df[["Participant_ID", "Session_Type", "Pre_SSQ", "Post_SSQ"]]
+    def get_score_shift(self, shift_col):
+        df_score = (
+            self.df[[self.subject_col, self.condition_col, shift_col]]
             .drop_duplicates()
-            .copy()
+            .dropna(subset=[shift_col])
         )
-        df_ssq["SSQ_Shift"] = df_ssq["Post_SSQ"] - df_ssq["Pre_SSQ"]
-        df_ssq = df_ssq.dropna(subset=["SSQ_Shift"])
-
-        return df_ssq.pivot(
-            index="Participant_ID", columns="Session_Type", values="SSQ_Shift"
+        return df_score.pivot(
+            index=self.subject_col, columns=self.condition_col, values=shift_col
         ).reset_index()
 
-    def run_test(self, title, df_paired):
-        """
-        omnibus friedman and pairwise wilcoxon tests for real vs. sham and real vs. active.
-        returns test statistics, p-values, and effect sizes
-        """
+    def run_test(self, title, df_paired, groups=("Real", "Active", "Sham")):
+        """omnibus friedman and pairwise wilcoxon"""
         print(f"\n--- {title} ---")
-
         results = {"friedman": None, "real_vs_sham": None, "real_vs_active": None}
+        group1, group2, group3 = groups
 
         # omnibus friedman
-        cols = [c for c in ["Real", "Active", "Sham"] if c in df_paired.columns]
+        cols = [c for c in groups if c in df_paired.columns]
         df_omni = df_paired.dropna(subset=cols)
 
         if len(cols) == 3 and len(df_omni) > 2:
             fstat, fp = friedmanchisquare(
-                df_omni["Real"], df_omni["Active"], df_omni["Sham"]
+                df_omni[group1], df_omni[group2], df_omni[group3]
             )
             print(
                 f"[Omnibus Friedman] (n={len(df_omni)}) -> chi2: {fstat:.4f}, p: {fp:.4f}"
             )
-
             results["friedman"] = {"chi2": fstat, "p_value": fp, "n": len(df_omni)}
 
-        # real vs. sham
-        if "Real" in df_paired.columns and "Sham" in df_paired.columns:
-            df_rs = df_paired.dropna(subset=["Real", "Sham"])
-            stat, p = self.run_wilcoxon(df_rs["Real"].values, df_rs["Sham"].values)
-            d = self.cohens_d_paired(df_rs["Real"].values, df_rs["Sham"].values)
-
+        # real vs sham
+        if group1 in df_paired.columns and group3 in df_paired.columns:
+            df_g1g3 = df_paired.dropna(subset=[group1, group3])
+            stat, p = self._wilcoxon(df_g1g3[group1].values, df_g1g3[group3].values)
+            d = self._cohens_d_paired(df_g1g3[group1].values, df_g1g3[group3].values)
             print(
-                f"[Real vs Sham] (n={len(df_rs)}) -> W: {stat:.4f}, p: {p:.4f}, d: {d:.4f}"
+                f"[{group1} vs {group3}] (n={len(df_g1g3)}) -> W: {stat:.4f}, p: {p:.4f}, d: {d:.4f}"
             )
 
-            results["real_vs_sham"] = {
-                "W_stat": stat,
-                "p_value": p,
-                "cohens_d": d,
-                "n": len(df_rs),
-            }
-
-        # real vs. active
-        if "Real" in df_paired.columns and "Active" in df_paired.columns:
-            df_ra = df_paired.dropna(subset=["Real", "Active"])
-            stat, p = self.run_wilcoxon(df_ra["Real"].values, df_ra["Active"].values)
-            d = self.cohens_d_paired(df_ra["Real"].values, df_ra["Active"].values)
-
+        # real vs active
+        if group1 in df_paired.columns and group2 in df_paired.columns:
+            df_g1g2 = df_paired.dropna(subset=[group1, group2])
+            stat, p = self._wilcoxon(df_g1g2[group1].values, df_g1g2[group2].values)
+            d = self._cohens_d_paired(df_g1g2[group1].values, df_g1g2[group2].values)
             print(
-                f"[Real vs Active] (n={len(df_ra)}) -> W: {stat:.4f}, p: {p:.4f}, d: {d:.4f}"
+                f"[{group1} vs {group2}] (n={len(df_g1g2)}) -> W: {stat:.4f}, p: {p:.4f}, d: {d:.4f}"
             )
-
-            results["real_vs_active"] = {
-                "W_stat": stat,
-                "p_value": p,
-                "cohens_d": d,
-                "n": len(df_ra),
-            }
 
         return results
+
+    def run_time_series_permutation(
+        self, title, metric, time_pairs, group_a="Real", group_b="Sham"
+    ):
+        print(f"\n--- {title} ---")
+
+        def mean_diff(x, y):
+            return np.mean(x - y)
+
+        for start_run, end_run in time_pairs:
+            run_data = self.df[self.df[self.time_col].isin([start_run, end_run])]
+            pivot_data = run_data.pivot_table(
+                index=[self.subject_col, self.condition_col],
+                columns=self.time_col,
+                values=metric,
+            ).reset_index()
+
+            col_name = f"Growth_{start_run}_{end_run}"
+            pivot_data[col_name] = pivot_data[end_run] - pivot_data[start_run]
+
+            final_pivot = pivot_data.pivot(
+                index=self.subject_col, columns=self.condition_col, values=col_name
+            ).dropna()
+
+            if group_a in final_pivot.columns and group_b in final_pivot.columns:
+                res = permutation_test(
+                    (final_pivot[group_a], final_pivot[group_b]),
+                    mean_diff,
+                    permutation_type="samples",
+                    alternative="two-sided",
+                )
+                print(
+                    f"Interval ({start_run} -> {end_run}): p-value = {res.pvalue:.4f}"
+                )
