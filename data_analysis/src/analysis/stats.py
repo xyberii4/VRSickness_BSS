@@ -17,10 +17,14 @@ class StatisticalAnalyzer:
         self.time_col = time_col
 
     @staticmethod
-    def _cohens_d_paired(a, b):
-        diff = a - b
-        std_diff = np.std(diff, ddof=1)
-        return np.mean(diff) / std_diff
+    def _pearsons_r_paired(a, b):
+        res = wilcoxon(a, b, method="approx")
+
+        n_obs = len(a) * 2
+
+        # r = Z / sqrt(N)
+        r = res.zstatistic / np.sqrt(n_obs)
+        return r
 
     @staticmethod
     def _wilcoxon(a, b):
@@ -108,18 +112,18 @@ class StatisticalAnalyzer:
         if group1 in df_paired.columns and group3 in df_paired.columns:
             df_g1g3 = df_paired.dropna(subset=[group1, group3])
             stat, p = self._wilcoxon(df_g1g3[group1].values, df_g1g3[group3].values)
-            d = self._cohens_d_paired(df_g1g3[group1].values, df_g1g3[group3].values)
+            r = self._pearsons_r_paired(df_g1g3[group1].values, df_g1g3[group3].values)
             print(
-                f"[{group1} vs {group3}] (n={len(df_g1g3)}) -> W: {stat:.4f}, p: {p:.4f}, d: {d:.4f}"
+                f"[{group1} vs {group3}] (n={len(df_g1g3)}) -> W: {stat:.4f}, p: {p:.4f}, r: {r:.4f}"
             )
 
         # real vs active
         if group1 in df_paired.columns and group2 in df_paired.columns:
             df_g1g2 = df_paired.dropna(subset=[group1, group2])
             stat, p = self._wilcoxon(df_g1g2[group1].values, df_g1g2[group2].values)
-            d = self._cohens_d_paired(df_g1g2[group1].values, df_g1g2[group2].values)
+            r = self._pearsons_r_paired(df_g1g2[group1].values, df_g1g2[group2].values)
             print(
-                f"[{group1} vs {group2}] (n={len(df_g1g2)}) -> W: {stat:.4f}, p: {p:.4f}, d: {d:.4f}"
+                f"[{group1} vs {group2}] (n={len(df_g1g2)}) -> W: {stat:.4f}, p: {p:.4f}, r: {r:.4f}"
             )
 
         return results
