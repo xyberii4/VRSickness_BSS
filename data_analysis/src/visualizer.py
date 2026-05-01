@@ -166,12 +166,6 @@ class Visualizer:
         ax.set_xlabel("Treatment Condition")
         ax.set_ylabel("Δ SSQ Total Score (Post - Pre)")
 
-        if not df_ssq.empty:
-            max_y = df_ssq["SSQ_Shift"].max()
-            self._draw_stat_bracket(
-                ax, x1=0, x2=2, y=max_y + 5, h=2, text="* $p = 0.0039$"
-            )
-
     def _plot_neurological_outcome(self, ax):
         """box and swarm plot of itc growth"""
         df_runs = self.df[self.df["Run_Number"].isin([1, 3])].copy()
@@ -213,12 +207,6 @@ class Visualizer:
         )
         ax.set_xlabel("Treatment Condition")
         ax.set_ylabel("Δ 18 Hz ITC (Run 3 - Run 1)")
-
-        if not df_itc.empty:
-            max_y_itc = df_itc["ITC_Growth"].max()
-            self._draw_stat_bracket(
-                ax, x1=0, x2=1, y=max_y_itc + 0.1, h=0.05, text="$d = -0.37$"
-            )
 
     def _plot_symptom_specificity(self, ax):
         """grouped box and swarm plot of ssq sub-scales"""
