@@ -1,6 +1,13 @@
 import numpy as np
 import pingouin as pg
-from scipy.stats import wilcoxon, friedmanchisquare, spearmanr, permutation_test
+from scipy.stats import (
+    wilcoxon,
+    friedmanchisquare,
+    spearmanr,
+    permutation_test,
+    bootstrap,
+)
+from statsmodels.stats.multitest import multipletests
 
 
 class StatisticalAnalyzer:
@@ -19,12 +26,27 @@ class StatisticalAnalyzer:
     @staticmethod
     def _pearsons_r_paired(a, b):
         res = wilcoxon(a, b, method="approx")
-
         n_obs = len(a) * 2
-
-        # r = Z / sqrt(N)
         r = res.zstatistic / np.sqrt(n_obs)
         return r
+
+    def _bootstrapped_r_ci(self, a, b, n_resamples=10000):
+        """calculates 95% ci for pearson's r"""
+        a = np.array(a)
+        b = np.array(b)
+
+        def stat_func(indices):
+            resampled_a = a[indices]
+            resampled_b = b[indices]
+
+            if np.all(resampled_a == resampled_b):
+                return 0.0
+            res = wilcoxon(resampled_a, resampled_b, method="approx")
+            return res.zstatistic / np.sqrt(len(indices) * 2)
+
+        indices = np.arange(len(a))
+        res = bootstrap((indices,), stat_func, n_resamples=n_resamples, method="BCa")
+        return res.confidence_interval.low, res.confidence_interval.high
 
     @staticmethod
     def _wilcoxon(a, b):
@@ -90,15 +112,15 @@ class StatisticalAnalyzer:
         ).reset_index()
 
     def run_test(self, title, df_paired, groups=("Real", "Active", "Sham")):
-        """omnibus friedman and pairwise wilcoxon"""
+        """omnibus friedman and pairwise wilcoxon with bonferroni & bootstrapped cis"""
         print(f"\n--- {title} ---")
         results = {"friedman": None, "real_vs_sham": None, "real_vs_active": None}
         group1, group2, group3 = groups
 
-        # omnibus friedman
         cols = [c for c in groups if c in df_paired.columns]
         df_omni = df_paired.dropna(subset=cols)
 
+        # omnibus friedman
         if len(cols) == 3 and len(df_omni) > 2:
             fstat, fp = friedmanchisquare(
                 df_omni[group1], df_omni[group2], df_omni[group3]
@@ -108,23 +130,45 @@ class StatisticalAnalyzer:
             )
             results["friedman"] = {"chi2": fstat, "p_value": fp, "n": len(df_omni)}
 
+        p_vals_uncorrected = []
+        comparisons = []
+
         # real vs sham
         if group1 in df_paired.columns and group3 in df_paired.columns:
             df_g1g3 = df_paired.dropna(subset=[group1, group3])
             stat, p = self._wilcoxon(df_g1g3[group1].values, df_g1g3[group3].values)
-            r = self._pearsons_r_paired(df_g1g3[group1].values, df_g1g3[group3].values)
-            print(
-                f"[{group1} vs {group3}] (n={len(df_g1g3)}) -> W: {stat:.4f}, p: {p:.4f}, r: {r:.4f}"
-            )
+            p_vals_uncorrected.append(p)
+            comparisons.append((group1, group3, df_g1g3))
 
         # real vs active
         if group1 in df_paired.columns and group2 in df_paired.columns:
             df_g1g2 = df_paired.dropna(subset=[group1, group2])
             stat, p = self._wilcoxon(df_g1g2[group1].values, df_g1g2[group2].values)
-            r = self._pearsons_r_paired(df_g1g2[group1].values, df_g1g2[group2].values)
-            print(
-                f"[{group1} vs {group2}] (n={len(df_g1g2)}) -> W: {stat:.4f}, p: {p:.4f}, r: {r:.4f}"
+            p_vals_uncorrected.append(p)
+            comparisons.append((group1, group2, df_g1g2))
+
+        if p_vals_uncorrected:
+            reject, p_vals_corrected, _, _ = multipletests(
+                p_vals_uncorrected, alpha=0.05, method="bonferroni"
             )
+
+            for i, (g_a, g_b, df_comp) in enumerate(comparisons):
+                stat, _ = self._wilcoxon(df_comp[g_a].values, df_comp[g_b].values)
+                r = self._pearsons_r_paired(df_comp[g_a].values, df_comp[g_b].values)
+
+                # bootstrapped confidence intervals
+                ci_low, ci_high = self._bootstrapped_r_ci(
+                    df_comp[g_a].values, df_comp[g_b].values
+                )
+
+                print(f"[{g_a} vs {g_b}] (n={len(df_comp)}) -> W: {stat:.4f}")
+                print(f"    p (uncorrected) = {p_vals_uncorrected[i]:.4f}")
+                print(
+                    f"    p (Holm-adj)    = {p_vals_corrected[i]:.4f} {'*' if reject[i] else ''}"
+                )
+                print(
+                    f"    Effect size (r) = {r:.4f}, 95% CI [{ci_low:.2f}, {ci_high:.2f}]"
+                )
 
         return results
 
