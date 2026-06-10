@@ -89,7 +89,7 @@ public class StimulationController : MonoBehaviour
             }
             else if (condition == ExperimentCondition.Sham)
             {
-                intensity = 0f; // sham runs 2/3
+                intensity = 0f; // sham runs 2-5
             }
 
             if (pinkNoise)

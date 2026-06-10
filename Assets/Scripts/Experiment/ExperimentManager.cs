@@ -28,6 +28,9 @@ public class ExperimentManager : MonoBehaviour
     [Header("Settings")]
     public int ParticipantID { get; private set; } = 1;
 
+    [Tooltip("Optional custom path for saving CSV files. If left empty, uses the default persistent data path.")]
+    public string customSaveDirectory = "";
+
     public ExperimentCondition CurrentCondition { get; private set; }
     public bool IsSessionActive { get; private set; } = false;
 
@@ -127,29 +130,14 @@ public class ExperimentManager : MonoBehaviour
         IsCountingDown = false;
         CountdownTimeRemaining = 0f;
 
-        // run 1
-        yield return StartCoroutine(
-            RunPhase(1, 4f, true, CurrentCondition == ExperimentCondition.Sham)
-        );
+        for (int i = 1; i <= 5; i++)
+        {
+            bool enableStimulation = (i == 1) ? true : (CurrentCondition != ExperimentCondition.Sham);
+            bool isShamFade = (i == 1) ? (CurrentCondition == ExperimentCondition.Sham) : false;
 
-        // break 1
-        yield return StartCoroutine(BreakPhase(1, 2f));
-
-        // run 2
-        yield return StartCoroutine(
-            RunPhase(2, 4f, CurrentCondition != ExperimentCondition.Sham, false)
-        );
-
-        // break 2
-        yield return StartCoroutine(BreakPhase(2, 2f));
-
-        // run 3
-        yield return StartCoroutine(
-            RunPhase(3, 4f, CurrentCondition != ExperimentCondition.Sham, false)
-        );
-
-        // break 3
-        yield return StartCoroutine(BreakPhase(3, 2f));
+            yield return StartCoroutine(RunPhase(i, 4f, enableStimulation, isShamFade));
+            yield return StartCoroutine(BreakPhase(i, 2f));
+        }
 
         EndSession();
     }
@@ -215,7 +203,14 @@ public class ExperimentManager : MonoBehaviour
         long unixTimeMilliseconds = System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         string conditionName = CurrentCondition.ToString();
         string fileName = $"{ParticipantID}_{conditionName}.csv";
-        string filePath = System.IO.Path.Combine(Application.persistentDataPath, fileName);
+        string saveDir = string.IsNullOrWhiteSpace(customSaveDirectory) ? Application.persistentDataPath : customSaveDirectory;
+        
+        if (!System.IO.Directory.Exists(saveDir))
+        {
+            System.IO.Directory.CreateDirectory(saveDir);
+        }
+
+        string filePath = System.IO.Path.Combine(saveDir, fileName);
 
         bool fileExists = System.IO.File.Exists(filePath);
         using (System.IO.StreamWriter writer = new System.IO.StreamWriter(filePath, true))
